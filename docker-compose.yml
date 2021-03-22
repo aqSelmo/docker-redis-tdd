@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    networks:
+      - redis-network
+    volumes:
+      - ./database:/var/lib/postgresql/data
+  app:
+    build: .
+    command: 'yarn start:dev'
+    networks:
+      - redis-network
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+networks:
+  redis-network:
+    driver: bridge
