@@ -1,6 +1,13 @@
 version: '3'
 
 services:
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    networks:
+      - redis-network
+    command: redis-server --requirepass PC1112131415
   db:
     image: postgres
     restart: always
@@ -12,7 +19,9 @@ services:
       - ./database:/var/lib/postgresql/data
   app:
     build: .
-    command: 'yarn start:dev'
+    command: >
+      bash -c "yarn typeorm migration:run
+      && yarn start:dev"
     networks:
       - redis-network
     ports:
@@ -21,6 +30,7 @@ services:
       - .:/app
     depends_on:
       - db
+      - redis
 networks:
   redis-network:
     driver: bridge
